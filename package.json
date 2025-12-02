@@ -1,0 +1,12 @@
+{
+  "name": "mqtt-listener",
+  "version": "1.0.0",
+  "description": "MQTT subscriber for SIM7600 data.",
+  "main": "mqtt_subscriber.js", // 👈 ¡Cambio aquí!
+  "scripts": {
+    "start": "node mqtt_subscriber.js" // 👈 ¡Y cambio aquí!
+  },
+  "dependencies": {
+    "mqtt": "^4.3.7" 
+  }
+}
