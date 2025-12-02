@@ -6,27 +6,21 @@ const mqtt = require('mqtt');
 const { Pool } = require('pg'); 
 
 // ---------------------------------------------------------
-// 1. CONFIGURACIÓN DE LA BASE DE DATOS
+// 1. CONFIGURACIÓN DE LA BASE DE DATOS (¡CONEXIÓN MANUAL!)
 // ---------------------------------------------------------
 
-// Render proporciona la variable de entorno DATABASE_URL automáticamente
-// cuando conectas los servicios internos (Internal Connections).
+// **IMPORTANTE:** Reemplaza 'TU_CONTRASEÑA_REAL' con la contraseña de Render.
 const dbConfig = {
-    connectionString: process.env.DATABASE_URL,
-    
-    // Configuración SSL necesaria para conexiones seguras en Render
+    user: 'telemetria_user',
+    host: 'dpg-d4nabuvdiees73dm503g-a.frankfurt-postgres.render.com', // Hostname de Render
+    database: 'telemetria_data',   
+    password: 'Sultan182406*', // <--- ¡PON AQUÍ TU CONTRASEÑA!
+    port: 5432,
     ssl: { rejectUnauthorized: false } 
 };
 
-// **Verificación Crítica:** Si la variable no existe, el proceso termina para diagnosticar el fallo.
-if (!process.env.DATABASE_URL) {
-    console.error("❌ ERROR CRÍTICO: La variable de entorno DATABASE_URL no está configurada.");
-    console.error("Asegúrate de haber conectado la base de datos (telemetria-db) al servicio Node.js en Render.");
-    process.exit(1); 
-}
-
 const pool = new Pool(dbConfig); 
-console.log('✅ Configuración de PostgreSQL inicializada. Usando DATABASE_URL.');
+console.log('✅ Configuración de PostgreSQL inicializada. Usando valores manuales.');
 
 
 // ---------------------------------------------------------
@@ -67,7 +61,7 @@ async function insertTelemetry(payload) {
         console.log(`[${new Date().toISOString()}] ✅ Datos de DEVICE ${payload.device_id} insertados en DB.`);
     } catch (err) {
         console.error('❌ Error al insertar datos en la base de datos:', err);
-        // Si hay error, imprime el error de la base de datos
+        // Imprime el detalle del error SQL (clave para el diagnóstico)
         console.error('Detalle del error DB:', err.message);
     }
 }
