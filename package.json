@@ -7,9 +7,8 @@
     "start": "node mqtt_subscriber.js" 
   },
   "dependencies": {
-    "mqtt": "^4.3.7"
-    "pg": "^8.11.3"  // <-- ¡Añade esta línea!
+    "mqtt": "^4.3.7",
+    "pg": "^8.11.3"  
   }
-
 }
 
