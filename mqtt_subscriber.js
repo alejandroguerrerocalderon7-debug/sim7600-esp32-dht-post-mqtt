@@ -6,37 +6,27 @@ const mqtt = require('mqtt');
 const { Pool } = require('pg'); 
 
 // ---------------------------------------------------------
-// 1. CONFIGURACIÓN DE LA BASE DE DATOS (¡USANDO VARIABLES DE ENTORNO!)
+// 1. CONFIGURACIÓN DE LA BASE DE DATOS
 // ---------------------------------------------------------
-// Usaremos process.env.DATABASE_URL, una variable de entorno proporcionada
-// por Render para bases de datos que están en la misma red privada.
-// Esto es mucho más seguro que poner la contraseña en el código.
 
+// Render proporciona la variable de entorno DATABASE_URL automáticamente
+// cuando conectas los servicios internos (Internal Connections).
 const dbConfig = {
-    // Render proporciona la variable de entorno DATABASE_URL automáticamente.
-    // Usaremos un "Pool" para gestionar las conexiones de forma eficiente.
     connectionString: process.env.DATABASE_URL,
     
     // Configuración SSL necesaria para conexiones seguras en Render
     ssl: { rejectUnauthorized: false } 
 };
 
-// Si Render no usa DATABASE_URL, podemos caer de vuelta a los valores manuales 
-// que configuraste, pero preferimos la URL de Render por seguridad.
+// **Verificación Crítica:** Si la variable no existe, el proceso termina para diagnosticar el fallo.
 if (!process.env.DATABASE_URL) {
-    // Si no tienes la variable de entorno, debes rellenar estos campos MANUALMENTE.
-    // Nota: Es mejor usar las variables de entorno de Render, paso que explicamos abajo.
-    dbConfig.user = 'telemetria_user';      
-    dbConfig.host = 'dpg-d4nabuvdiees73dn583g-a.frankfurt-postgres.render.com'; 
-    dbConfig.database = 'telemetria_data';   
-    dbConfig.password = 'TU_CONTRASEÑA_SECRETA'; // ¡CAMBIAR!
-    dbConfig.port = 5432;
-    // Si usas el objeto dbConfig manual, necesitarás rellenar todos los campos.
-    delete dbConfig.connectionString;
+    console.error("❌ ERROR CRÍTICO: La variable de entorno DATABASE_URL no está configurada.");
+    console.error("Asegúrate de haber conectado la base de datos (telemetria-db) al servicio Node.js en Render.");
+    process.exit(1); 
 }
 
 const pool = new Pool(dbConfig); 
-console.log('✅ Configuración de PostgreSQL inicializada.');
+console.log('✅ Configuración de PostgreSQL inicializada. Usando DATABASE_URL.');
 
 
 // ---------------------------------------------------------
@@ -77,6 +67,8 @@ async function insertTelemetry(payload) {
         console.log(`[${new Date().toISOString()}] ✅ Datos de DEVICE ${payload.device_id} insertados en DB.`);
     } catch (err) {
         console.error('❌ Error al insertar datos en la base de datos:', err);
+        // Si hay error, imprime el error de la base de datos
+        console.error('Detalle del error DB:', err.message);
     }
 }
 
